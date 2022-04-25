@@ -1,28 +1,44 @@
 package com.codeyaa;
 
+import com.codeyaa.utils.common.reflection.BeanUtil;
 import com.codeyaa.utils.common.reflection.UnSafeUtil;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
 import java.util.HashMap;
 
 public class UnsafeTest {
-    static class A {
+    @EqualsAndHashCode(callSuper = true)
+    @Data
+    static class A extends C {
         String a;
     }
 
-    static class B {
+    @EqualsAndHashCode(callSuper = true)
+    @Data
+    @ToString(callSuper = true)
+    static class B extends C {
         String a;
+    }
+
+    @Data
+    static class C {
+        String c;
     }
 
     public static void main(String[] args) {
-//        copyTest();
-        mapCopyTest();
+        copyTest();
+//        mapCopyTest();
     }
 
     private static void copyTest() {
         A a = new A();
         a.a = "2";
-        B b = UnSafeUtil.clone(a, B.class);
-        System.out.println(b.a);
+        a.c = "3";
+        B b1 = new B();
+        B clone = UnSafeUtil.clone(a, b1, B.class);
+        System.out.println(clone);
     }
 
     private static void mapCopyTest() {

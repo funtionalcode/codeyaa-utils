@@ -292,36 +292,51 @@ public class DateUtil {
         return "";
     }
 
-    public static String unitDate(Long date) {
+    public static String unitDate(Double date) {
         // 多少个零
-        int num = (date + "").length() - 1;
+        int num = (date.longValue() + "").length() - 1;
         if (num <= 2) {
             return String.format("%s %s", date, "毫秒");
         }
-        date /= 1000;
-        // 单位下标
-        Double index = Math.floor(NumberUtil.log(60, date.doubleValue()));
-
+        date = date / 1000;
         ArrayList<String> resList = new ArrayList<>();
-        unitDate(date, index.intValue(), resList);
+        Double hour = unitHour(date, 1, resList);
+
+        unitDate(date.longValue(), 3, resList);
         return String.join("", resList);
     }
 
-    private static void unitDate(Long date, int index, List<String> resList) {
-        List<String> unitNames = Arrays.asList("秒", "分钟", "小时", "天", "周", "月", "年");
-        List<Long> unitConvert = Arrays.asList(1L, 60L, 60L, 24L, 7L, 4L, 12L);
-        if (index == 0) {
-            resList.add(String.format("%s%s", date, unitNames.get(0)));
-            return;
+    private static Double unitHour(Double date, int index, List<String> resList) {
+        List<String> unitNames = Arrays.asList("秒", "分钟", "小时");
+        List<Long> unitConvert = Arrays.asList(60L, 60L);
+        // 当前单位多少秒
+        Long currentSecond = NumberUtil.recursionList(unitConvert, index);
+        // 当前单位进制位
+        Long currentConvert = unitConvert.get(index);
+        double remainder = date % currentSecond;
+        if (remainder != date) {
+            double currentUnit = (date - remainder) / currentConvert;
+            resList.add(String.format("%s%s", currentUnit, unitNames.get(index)));
         }
-        // 当前单位秒数
-        Long currentUnitSecond = NumberUtil.recursionList(unitConvert, index);
-        // 单位
-        int convertFirst = Double.valueOf(date / currentUnitSecond).intValue();
-        resList.add(String.format("%s%s", convertFirst, unitNames.get(index)));
-        // 时间减去计算好的
-        unitDate(date - convertFirst * currentUnitSecond, index - 1, resList);
+        if (index == 0) {
+            return 0d;
+        }
+        date = date / currentConvert + date % currentConvert;
+        return unitHour(date, index - 1, resList);
     }
 
-
+    private static void unitDate(Long date, int index, List<String> resList) {
+        List<String> unitNames = Arrays.asList("秒", "分钟", "小时", "天", "周");
+        List<Long> unitConvert = Arrays.asList(60L, 60L, 24L, 7L);
+        // 当前单位多少秒
+        Long currentSecond = NumberUtil.recursionList(unitConvert, index);
+        // 当前单位进制位
+        Long currentConvert = unitConvert.get(index);
+        if (date % currentSecond != date) {
+            resList.add(String.format("%s%s", date / currentConvert, unitNames.get(index + 1)));
+            return;
+        }
+        date = date / currentConvert + date % currentConvert;
+        unitDate(date, index - 1, resList);
+    }
 }

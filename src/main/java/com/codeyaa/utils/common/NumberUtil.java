@@ -32,6 +32,7 @@ public class NumberUtil {
     public static double log(double x, double y) {
         return Math.log(y) / Math.log(x);
     }
+
     public static Long recursionList(List<Long> list, int index) {
         if (index == 0) {
             return list.get(index);

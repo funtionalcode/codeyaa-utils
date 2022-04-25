@@ -2,16 +2,11 @@ package com.codeyaa;
 
 import com.codeyaa.utils.common.date.DateUtil;
 
-import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
-import java.time.temporal.ChronoField;
-import java.util.Date;
 
 public class DateTest {
     public static void main(String[] args) {
@@ -57,7 +52,7 @@ public class DateTest {
     }
 
     private static void unitTest() {
-        String unitDate = DateUtil.unitDate(7200*1000L);
+        String unitDate = DateUtil.unitDate((7200 + 1) * 1000d);
         System.out.println("unitDate = " + unitDate);
     }
 

@@ -1,7 +1,6 @@
 package com.codeyaa.utils.tripartite.excel;
 
 import com.codeyaa.utils.common.StringUtils;
-import com.codeyaa.utils.common.reflection.BeanUtil;
 import com.codeyaa.utils.common.reflection.UnSafeUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
@@ -51,7 +50,7 @@ public class PoiUtil {
             else {
                 int cellNum = row.getLastCellNum();
                 T t = UnSafeUtil.allocateInstance(clazz);
-                Field[] allFields = BeanUtil.getAllFields(clazz);
+                Field[] allFields = clazz.getDeclaredFields();
 
                 for (int i = 0; i < cellNum; i++) {
                     Field field = allFields[i];
