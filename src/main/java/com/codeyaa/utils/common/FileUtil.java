@@ -249,30 +249,6 @@ public class FileUtil {
     }
 
     /**
-     * show 文本截取匹配正则的内容.
-     * <p>show 方法的详细说明第一行<br> * show 方法的详细说明第二行
-     *
-     * @param regex
-     * @param content
-     * @Return
-     * @Author xin11.xin
-     * @Date 2021/8/21 3:18
-     */
-    public static List<String> getRegexString(String regex, String content) {
-        // 创建 Pattern 对象
-        Pattern r = Pattern.compile(regex);
-
-        // 现在创建 matcher 对象
-        Matcher m = r.matcher(content);
-        ArrayList<String> regexs = new ArrayList<>();
-        //此处find（）每次被调用后，会偏移到下一个匹配
-        while (m.find()) {
-            regexs.add(m.group());
-        }
-        return regexs;
-    }
-
-    /**
      * show XML 文本转换为 Java 实体类.
      * <p>show 方法的详细说明第一行<br> * show 方法的详细说明第二行
      *

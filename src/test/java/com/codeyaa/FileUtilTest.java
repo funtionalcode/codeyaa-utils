@@ -10,6 +10,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.stream.Collectors;
 
+import static com.codeyaa.utils.common.StringUtils.getRegexString;
+
 public class FileUtilTest {
     public static void main(String[] args) {
         regexMidTest();
@@ -23,7 +25,7 @@ public class FileUtilTest {
     }
 
     private static void readRegex() {
-        List<String> s = FileUtil.getRegexString(":(.*):", "8390 : XYK_MX_031 : AGE >= 29 and AGE < 34");
+        List<String> s = getRegexString(":(.*):", "8390 : XYK_MX_031 : AGE >= 29 and AGE < 34");
         System.out.println(s.get(0).replaceAll(":|( )+", ""));
     }
 
@@ -35,7 +37,7 @@ public class FileUtilTest {
     private static void getBangsunXml() {
         String s = FileUtil.readFile("C:\\Users\\codeyaa\\Desktop\\1.txt");
         String regex = "(name = .*)";
-        List<String> regexString = FileUtil.getRegexString(regex, s);
+        List<String> regexString = getRegexString(regex, s);
         regexString.stream().map(item -> {
             String pre = "\"" + item.substring(7, 8).toLowerCase(Locale.ROOT);
             String middle = item.substring(8, item.length() - 1) + "\",";
@@ -106,7 +108,7 @@ public class FileUtilTest {
 
         String regex = String.format("(<%s>.*</%s>)", node, node);
         String target = String.format("<%s>%s</%s>", node, content, node);
-        List<String> regexString = FileUtil.getRegexString(regex, s);
+        List<String> regexString = getRegexString(regex, s);
         regexString.forEach(System.out::println);
         String replayXmlState = FileUtil.replayXmlState(regex, target, s);
         FileUtil.copyFile(replayXmlState, path, "");
@@ -130,7 +132,7 @@ public class FileUtilTest {
     }
 
     private static void regexMidTest(){
-        String content = FileUtil.getRegexString("\\(.*\\)", "未知类型(454564564sda56f)")
+        String content = getRegexString("\\(.*\\)", "未知类型(454564564sda56f)")
                 .get(0)
                 .replaceAll("\\(|\\)", "");
         System.out.println("content = " + content);
