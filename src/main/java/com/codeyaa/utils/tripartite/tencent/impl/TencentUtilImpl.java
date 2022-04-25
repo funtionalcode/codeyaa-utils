@@ -12,6 +12,7 @@ import com.qcloud.cos.model.PutObjectRequest;
 import com.qcloud.cos.region.Region;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import net.dongliu.requests.Requests;
 import net.dongliu.requests.Session;
 
 import java.io.ByteArrayInputStream;
@@ -32,7 +33,7 @@ public class TencentUtilImpl implements TencentUtil {
     private String region;
     private String bucketName;
     private COSClient cosClient;
-    private static Session requests;
+    private final static Session REQUESTS = Requests.session();
 
     public TencentUtilImpl(String secretId, String secretKey, String region) {
         this.secretId = secretId;
@@ -93,7 +94,7 @@ public class TencentUtilImpl implements TencentUtil {
 
     @Override
     public InputStream getBill(String url) {
-        byte[] bytes = requests.get(url).send().readToBytes();
+        byte[] bytes = REQUESTS.get(url).send().readToBytes();
         return new ByteArrayInputStream(bytes);
     }
 
