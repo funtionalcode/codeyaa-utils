@@ -54,8 +54,10 @@ public class RandomUtil {
      * @param num  份数
      * @return 1 -> [1,2] 2 -> [3,4]
      */
-    public static <T> Map<Integer, List<T>> splitList(Stack<T> list, int num) {
-        return splitList(list, num, list.size() / num, new HashMap<>(num));
+    public static <T> Map<Integer, List<T>> splitList(List<T> list, int num) {
+        Stack<T> ts = new Stack<>();
+        ts.addAll(list);
+        return splitList(ts, num, list.size() / num, new HashMap<>(num));
     }
 
     private static <T> Map<Integer, List<T>> splitList(Stack<T> list, int num, int size, HashMap<Integer, List<T>> res) {
@@ -77,8 +79,10 @@ public class RandomUtil {
      * @param num  元素个数
      * @return 1 -> [1,2] 2 -> [3,4]
      */
-    public static <T> Map<Integer, List<T>> cutList(Stack<T> list, int num) {
-        return cutList(list, 0, num, new HashMap<>());
+    public static <T> Map<Integer, List<T>> cutList(List<T> list, int num) {
+        Stack<T> ts = new Stack<>();
+        ts.addAll(list);
+        return cutList(ts, 0, num, new HashMap<>());
     }
 
     private static <T> Map<Integer, List<T>> cutList(Stack<T> list, int index, int num, Map<Integer, List<T>> res) {
