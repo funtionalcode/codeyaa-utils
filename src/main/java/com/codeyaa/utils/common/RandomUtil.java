@@ -1,9 +1,9 @@
 package com.codeyaa.utils.common;
 
-import com.google.gson.Gson;
-
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import java.util.stream.LongStream;
 
 public class RandomUtil {
@@ -18,31 +18,33 @@ public class RandomUtil {
      * @param num num 份
      * @return
      */
-    public static Map<Integer, List<Map<Object, Object>>> split(Map map, int num) {
-        Gson gson = new Gson();
-        Map<Integer, List<Map<Object, Object>>> res = new HashMap<>();
-        // 每份的容量
-        int len = map.size() / num;
-        // 标识第几份
-        int flag = 1;
-        ArrayList<Map<Object, Object>> maps = new ArrayList<>();
-        for (Object key : map.keySet()) {
-            Object value = map.get(key);
-            HashMap<Object, Object> tmp = new HashMap<>();
-            tmp.put(key, value);
-            maps.add(tmp);
+    public static <K, V> Map<Integer, List<Map<K, V>>> splitMap(Map<K, V> map, int num) {
+        return splitMap(map, num, map.size() / num, new HashMap<>());
+    }
 
-            // 最后一份不限容量
-            if (flag == num) {
-                res.put(flag, gson.fromJson(gson.toJson(maps), List.class));
-            }
-            // 达到每份容量
-            else if (maps.size() - 1 == len) {
-                res.put(flag++, gson.fromJson(gson.toJson(maps), List.class));
-                maps.clear();
-            }
+    private static <K, V> Map<Integer, List<Map<K, V>>> splitMap(Map<K, V> map, int num, int size, Map<Integer, List<Map<K, V>>> res) {
+        if (num == 1 || map.size() < size) {
+            getMapNum(map, num, map.size(), res);
+            return res;
         }
-        return res;
+        getMapNum(map, num, size, res);
+        return splitMap(map, num - 1, size, res);
+    }
+
+    private static <K, V> void getMapNum(Map<K, V> map, int num, int size, Map<Integer, List<Map<K, V>>> res) {
+        List<Map<K, V>> maps = new ArrayList<>();
+        List<K> ls = new ArrayList<>(map.keySet());
+        for (int i = 0; i < size; i++) {
+            HashMap<K, V> m = new HashMap<>();
+
+            K key = ls.get(i);
+
+            m.put(key, map.get(key));
+            map.remove(key);
+
+            maps.add(m);
+        }
+        res.put(num, maps);
     }
 
     /**
@@ -52,24 +54,20 @@ public class RandomUtil {
      * @param num  份数
      * @return 1 -> [1,2] 2 -> [3,4]
      */
-    public static Map<Integer, List<Object>> splitList(List list, int num) {
-        HashMap<Integer, List<Object>> map = new HashMap<>();
-        for (int i = 1; i <= num; i++) {
-            int size = list.size();
-            if (i == 1) {
-                List<Object> first = list.subList(0, size / num / i);
-                map.put(i, first);
-            }
-            if (i > 1 && i < num) {
-                List<Object> mid = list.subList(size / num * (i - 1), size / num * i);
-                map.put(i, mid);
-            }
-            if (i == num) {
-                List<Object> end = list.subList(size / num * (i - 1), size);
-                map.put(i, end);
-            }
+    public static <T> Map<Integer, List<T>> splitList(Stack<T> list, int num) {
+        return splitList(list, num, list.size() / num, new HashMap<>(num));
+    }
+
+    private static <T> Map<Integer, List<T>> splitList(Stack<T> list, int num, int size, HashMap<Integer, List<T>> res) {
+        if (num == 1 || list.size() < size) {
+            res.put(num, new ArrayList<>(list));
+            return res;
         }
-        return map;
+        List<T> currentObjs = IntStream.range(0, size)
+                .mapToObj(row -> list.pop())
+                .collect(Collectors.toList());
+        res.put(num, currentObjs);
+        return splitList(list, num - 1, size, res);
     }
 
     /**
@@ -79,19 +77,20 @@ public class RandomUtil {
      * @param num  元素个数
      * @return 1 -> [1,2] 2 -> [3,4]
      */
-    public static Map<Integer, List<Object>> cutList(List list, int num) {
-        HashMap<Integer, List<Object>> map = new HashMap<>();
-        int size = list.size();
-        for (int i = 1; i <= size; i++) {
-            int toIndex = i * num;
-            if (toIndex >= size) {
-                map.put(i, list.subList(5 * (i - 1), size));
-                break;
-            } else {
-                map.put(i, list.subList(5 * (i - 1), toIndex));
-            }
+    public static <T> Map<Integer, List<T>> cutList(Stack<T> list, int num) {
+        return cutList(list, 0, num, new HashMap<>());
+    }
+
+    private static <T> Map<Integer, List<T>> cutList(Stack<T> list, int index, int num, Map<Integer, List<T>> res) {
+        if (list.isEmpty() || list.size() < num) {
+            res.put(index, new ArrayList<>(list));
+            return res;
         }
-        return map;
+        List<T> currentObjs = IntStream.range(0, num)
+                .mapToObj(row -> list.pop())
+                .collect(Collectors.toList());
+        res.put(index, currentObjs);
+        return cutList(list, index + 1, num, res);
     }
 
     /**
@@ -101,23 +100,32 @@ public class RandomUtil {
      * @param size
      * @return
      */
-    public static void cutNumberByCode(long number, long size, Map<Long, List<Long>> res) {
-        if (number - size <= 0) {
-            res.put(number, Arrays.asList(0L, number));
-            return;
-        }
-        res.put(number, Arrays.asList(number - size, number));
-        cutNumberByCode(number - size, size, res);
+    public static Map<Long, List<Long>> cutNumberByCode(long number, long size) {
+        return cutNumberByCode(number, size, new HashMap<>());
     }
 
-    public static void cutNumberByStream(long number, long size, Map<Long, List<Long>> res) {
+    private static Map<Long, List<Long>> cutNumberByCode(long number, long size, Map<Long, List<Long>> res) {
+        long currentNum = number - size;
+        if (currentNum <= 0) {
+            res.put(number, Arrays.asList(0L, number));
+            return res;
+        }
+        res.put(number, Arrays.asList(currentNum, number));
+        return cutNumberByCode(currentNum, size, res);
+    }
+
+    public static Map<Long, List<Long>> cutNumberByStream(long number, long size) {
+        return cutNumberByStream(number, size, new HashMap<>());
+    }
+
+    private static Map<Long, List<Long>> cutNumberByStream(long number, long size, Map<Long, List<Long>> res) {
         AtomicBoolean flag = new AtomicBoolean(true);
         LongStream.range(number, number + 1).filter(n -> n >= size).peek(n -> flag.set(false)).forEach(n -> res.put(n, Arrays.asList(n - size, n)));
         if (flag.get()) {
             res.put(number, Arrays.asList(0L, number));
-            return;
+            return res;
         }
-        cutNumberByStream(number - size, size, res);
+        return cutNumberByStream(number - size, size, res);
     }
 
     public static String getRandomString(int length) {

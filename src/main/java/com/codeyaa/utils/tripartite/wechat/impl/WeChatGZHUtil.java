@@ -2,14 +2,8 @@ package com.codeyaa.utils.tripartite.wechat.impl;
 
 import com.codeyaa.exception.AesException;
 import com.codeyaa.exception.GzhException;
-import com.codeyaa.model.vx.gzh.dto.DeleteDiyMenuRequest;
 import com.codeyaa.model.vx.gzh.GzhMediaBase;
-import com.codeyaa.model.vx.gzh.dto.GzhImageConditionDto;
-import com.codeyaa.model.vx.gzh.dto.GzhMediaDto;
-import com.codeyaa.model.vx.gzh.dto.SendMsgBase;
-import com.codeyaa.model.vx.gzh.dto.SendMsgRequest;
-import com.codeyaa.model.vx.gzh.dto.SendPreMsgRequest;
-import com.codeyaa.model.vx.gzh.dto.VxCheckRequest;
+import com.codeyaa.model.vx.gzh.dto.*;
 import com.codeyaa.model.vx.gzh.dto.diy.CreateDiyMenuRequest;
 import com.codeyaa.model.vx.gzh.dto.only.CreateOnlyMenuRequest;
 import com.codeyaa.model.vx.gzh.dto.xml.ImgResultXml;
@@ -403,7 +397,9 @@ public class WeChatGZHUtil implements WeChatGzh {
 
         List<GzhMediaBase> allGzhMedia = getAllGzhMedia(type, token);
         ThreadPoolExecutor executor = DefaultPoolExecutor.newInstance(allGzhMedia.size() + 1, "删除公众号图片");
-        Map<Integer, List<Object>> cutListMap = RandomUtil.cutList(allGzhMedia, 5);
+        Stack<GzhMediaBase> gzhMediaBases = new Stack<>();
+        gzhMediaBases.addAll(allGzhMedia);
+        Map<Integer, List<GzhMediaBase>> cutListMap = RandomUtil.cutList(gzhMediaBases, 5);
         cutListMap.forEach((k, gzhMediaList) -> {
             CompletableFuture.runAsync(() -> {
                 gzhMediaList.forEach(mediaObj -> {
@@ -580,7 +576,7 @@ public class WeChatGZHUtil implements WeChatGzh {
 
         final String url = "https://api.weixin.qq.com/cgi-bin/material/batchget_material";
         String apiUrl = url + "?access_token=" + token;
-        GzhImageConditionDto gzhImageConditionDto = new GzhImageConditionDto(type, 0L, Long.parseLong(imgCount+""));
+        GzhImageConditionDto gzhImageConditionDto = new GzhImageConditionDto(type, 0L, Long.parseLong(imgCount + ""));
 
         String respText = CommonClient.REQUESTS.post(apiUrl)
                 .jsonBody(gzhImageConditionDto)
@@ -620,7 +616,7 @@ public class WeChatGZHUtil implements WeChatGzh {
                     .send()
                     .charset(StandardCharsets.UTF_8)
                     .readToText();
-            GzhAllImageVo gzhAllImageVo = checkGzhJson(readToText,GzhAllImageVo.class);
+            GzhAllImageVo gzhAllImageVo = checkGzhJson(readToText, GzhAllImageVo.class);
             gzhAllImageVo.getItem().forEach(row -> medias.add(new ManyImgGzhMedia(row.getName(), row.getMedia_id(), row.getUrl())));
         }
         return medias;

@@ -19,25 +19,25 @@ public class SplitTest {
         for (int i = 0; i < 19; i++) {
             map.put(i, i);
         }
-        Map<Integer, List<Map<Object, Object>>> split = RandomUtil.split(map, 5);
+        Map<Integer, List<Map<Integer, Integer>>> split = RandomUtil.splitMap(map, 6);
         split.forEach((k, v) -> System.out.println(k + ":" + v + "-->" + v.size()));
     }
 
     private static void listSplit() {
-        List list = new ArrayList<>();
+        Stack<Integer> list = new Stack<>();
         for (int i = 0; i < 19; i++) {
             list.add(i);
         }
-        Map<Integer, List<Object>> split = RandomUtil.splitList(list, 5);
+        Map<Integer, List<Integer>> split = RandomUtil.splitList(list, 10);
         System.out.println("splitList = " + split);
     }
 
     private static void cutList() {
-        List list = new ArrayList<>();
+        Stack<Integer> list = new Stack<>();
         for (int i = 0; i < 39; i++) {
             list.add(i);
         }
-        Map<Integer, List<Object>> split = RandomUtil.cutList(list, 5);
+        Map<Integer, List<Integer>> split = RandomUtil.cutList(list, 5);
         System.out.println("cutList = " + split);
     }
 
@@ -55,9 +55,8 @@ public class SplitTest {
     }
 
     private static void splitNumber() {
-        Map<Long, List<Long>> res = new HashMap<>();
-        RandomUtil.cutNumberByStream(29200009L, 100000L, res);
+        Map<Long, List<Long>> res = RandomUtil.cutNumberByCode(29200009L, 100000L);
         res.forEach((k, v) -> System.out.println(String.format("%s:%s", k, v)));
-        System.out.printf("总次数:%s",res.size());
+        System.out.printf("总次数:%s", res.size());
     }
 }

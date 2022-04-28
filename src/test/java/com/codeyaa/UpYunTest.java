@@ -14,8 +14,8 @@ public class UpYunTest {
     private static UpYun upYun;
 
     static {
-//        String[] split = FileUtil.readFile("d:/sk/upyun.txt").split("\r\n");
-//        upYun = new UpYunUtil(split[0], split[1], split[2]);
+//        String[] splitMap = FileUtil.readFile("d:/sk/upyun.txt").splitMap("\r\n");
+//        upYun = new UpYunUtil(splitMap[0], splitMap[1], splitMap[2]);
     }
 
     public static void main(String[] args) {

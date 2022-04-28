@@ -34,7 +34,11 @@ public class UnSafeUtil {
         }
     }
 
-    public static <T> T clone(Object object, T target, Class<T> clazz) {
+    public static <T> T clone(Object object, Class<T> clazz) {
+        return clone(object, allocateInstance(clazz), clazz);
+    }
+
+    private static <T> T clone(Object object, T target, Class<T> clazz) {
         try {
             if (Objects.isNull(object) || Objects.isNull(clazz)) {
                 return target;
@@ -56,14 +60,14 @@ public class UnSafeUtil {
         } catch (
                 Exception e) {
             e.printStackTrace();
-            return null;
+            return target;
         }
     }
 
     public static boolean fieldInTarget(String field, Class clazz) {
         List<String> declaredFields = BeanUtil.getAllFields(clazz, new ArrayList<>())
                 .stream()
-                .peek(row->row.setAccessible(true))
+                .peek(row -> row.setAccessible(true))
                 .map(Field::getName)
                 .collect(Collectors.toList());
         return declaredFields.contains(field);

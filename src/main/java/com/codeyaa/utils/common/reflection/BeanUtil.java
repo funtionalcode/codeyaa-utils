@@ -110,7 +110,16 @@ public class BeanUtil {
         return obj;
     }
 
-    public static <T> T clone(Object source, T target, Class<T> clazz) {
+    public static <T> T clone(Object source, Class<T> clazz) {
+        try {
+            return clone(source, clazz.newInstance(), clazz);
+        } catch (InstantiationException | IllegalAccessException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    private static <T> T clone(Object source, T target, Class<T> clazz) {
         if (Objects.isNull(source) || Objects.isNull(clazz)) {
             return target;
         }

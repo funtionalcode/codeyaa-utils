@@ -1,6 +1,5 @@
 package com.codeyaa;
 
-import com.codeyaa.utils.common.reflection.BeanUtil;
 import com.codeyaa.utils.common.reflection.UnSafeUtil;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -36,8 +35,7 @@ public class UnsafeTest {
         A a = new A();
         a.a = "2";
         a.c = "3";
-        B b1 = new B();
-        B clone = UnSafeUtil.clone(a, b1, B.class);
+        B clone = UnSafeUtil.clone(a, B.class);
         System.out.println(clone);
     }
 
