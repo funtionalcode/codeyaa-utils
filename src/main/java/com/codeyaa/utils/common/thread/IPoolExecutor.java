@@ -1,14 +1,14 @@
-package com.codeyaa.thread;
+package com.codeyaa.utils.common.thread;
 
 
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
-public class DefaultPoolExecutor {
+public class IPoolExecutor {
     public static ThreadPoolExecutor newInstance(Integer length, String threadGroupName) {
         ArrayBlockingQueue<Runnable> arrayBlockingQueue = new ArrayBlockingQueue<>(length);
-        UserThreadFactory userThreadFactory = new UserThreadFactory(threadGroupName);
+        IThreadFactory userThreadFactory = new IThreadFactory(threadGroupName);
         /**
          * ThreadPoolExecutor.AbortPolicy() 抛出java.util.concurrent.RejectedExecutionException异常
          * ThreadPoolExecutor.CallerRunsPolicy() 重试添加当前的任务，他会自动重复调用execute()方法

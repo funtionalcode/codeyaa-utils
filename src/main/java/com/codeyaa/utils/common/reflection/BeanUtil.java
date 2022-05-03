@@ -130,7 +130,7 @@ public class BeanUtil {
             field.setAccessible(true);
             String fieldName = field.getName();
             // 字段在当前类
-            if (fieldInTarget(fieldName, sourceClazz)) {
+            if (fieldInTarget(field, sourceClazz)) {
                 // 当前类的属性值
                 Object fieldValue = getValue(source, fieldName);
                 setValue(target, fieldName, fieldValue);

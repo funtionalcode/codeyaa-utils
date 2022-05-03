@@ -104,19 +104,42 @@ public class RandomUtil {
      * @param size
      * @return
      */
-    public static Map<Long, List<Long>> cutNumberByCode(long number, long size) {
-        return cutNumberByCode(number, size, new HashMap<>());
+    public static Map<Long, List<Long>> cutNumber(long number, long size) {
+        return cutNumber(number, size, new HashMap<>());
     }
 
-    private static Map<Long, List<Long>> cutNumberByCode(long number, long size, Map<Long, List<Long>> res) {
+    private static Map<Long, List<Long>> cutNumber(long number, long size, Map<Long, List<Long>> res) {
         long currentNum = number - size;
         if (currentNum <= 0) {
             res.put(number, Arrays.asList(0L, number));
             return res;
         }
         res.put(number, Arrays.asList(currentNum, number));
-        return cutNumberByCode(currentNum, size, res);
+        return cutNumber(currentNum, size, res);
     }
+
+    /**
+     * [startNum,endNum] 每次取size长度
+     *
+     * @param startNum 开始
+     * @param endNum   结束
+     * @param size     每轮的长度
+     * @return
+     */
+    public static Map<Long, List<Long>> cutBetweenNumber(long startNum, long endNum, long size) {
+        return cutBetweenNumber(startNum, endNum, size, new HashMap<>());
+    }
+
+    private static Map<Long, List<Long>> cutBetweenNumber(long startNum, long endNum, long size, Map<Long, List<Long>> res) {
+        long currentNum = endNum - size;
+        if (currentNum <= startNum) {
+            res.put(startNum, Arrays.asList(0L, startNum));
+            return res;
+        }
+        res.put(endNum, Arrays.asList(currentNum, endNum));
+        return cutBetweenNumber(startNum, currentNum, size, res);
+    }
+
 
     public static Map<Long, List<Long>> cutNumberByStream(long number, long size) {
         return cutNumberByStream(number, size, new HashMap<>());

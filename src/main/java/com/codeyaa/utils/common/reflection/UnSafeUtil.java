@@ -50,7 +50,7 @@ public class UnSafeUtil {
                 field.setAccessible(true);
                 String fieldName = field.getName();
                 // 字段在当前类
-                if (fieldInTarget(fieldName, targetClazz)) {
+                if (fieldInTarget(field, targetClazz)) {
                     Object fieldValue = getFieldValue(object, fieldName);
                     // 赋值到目标类
                     unSafe.putObject(target, unSafe.objectFieldOffset(field), fieldValue);
@@ -64,13 +64,25 @@ public class UnSafeUtil {
         }
     }
 
-    public static boolean fieldInTarget(String field, Class clazz) {
-        List<String> declaredFields = BeanUtil.getAllFields(clazz, new ArrayList<>())
+    /**
+     * 校验字段是否在目标字段中
+     * 校验字段名称、字段数据类型
+     *
+     * @param sourceField 源字段
+     * @param targetClazz 目标类型
+     * @return
+     */
+    public static boolean fieldInTarget(Field sourceField, Class<?> targetClazz) {
+        String sourceName = sourceField.getName();
+        Class<?> sourceType = sourceField.getType();
+        List<String> declaredFields = BeanUtil.getAllFields(targetClazz, new ArrayList<>())
                 .stream()
                 .peek(row -> row.setAccessible(true))
+                .filter(row -> row.getName().equals(sourceName))
+                .filter(row -> row.getType().equals(sourceType))
                 .map(Field::getName)
                 .collect(Collectors.toList());
-        return declaredFields.contains(field);
+        return declaredFields.contains(sourceName);
     }
 
     public static <T> T mapClone(Map map, Class<T> clazz) {
@@ -83,7 +95,7 @@ public class UnSafeUtil {
             for (Field field : fields) {
                 field.setAccessible(true);
                 String name = field.getName();
-                if (fieldInTarget(name, clazz)) {
+                if (fieldInTarget(field, clazz)) {
                     // 当前map的属性值
                     Object fieldValue = map.get(name);
                     // 赋值到目标类

@@ -11,7 +11,7 @@ import com.codeyaa.model.vx.gzh.dto.xml.RequestBodyXml;
 import com.codeyaa.model.vx.gzh.vo.*;
 import com.codeyaa.model.wechat.vo.AccessTokenResult;
 import com.codeyaa.model.wechat.vo.UserInfoResult;
-import com.codeyaa.thread.DefaultPoolExecutor;
+import com.codeyaa.utils.common.thread.IPoolExecutor;
 import com.codeyaa.utils.common.RandomUtil;
 import com.codeyaa.utils.common.client.CommonClient;
 import com.codeyaa.utils.common.wxgzh.WXBizMsgCrypt;
@@ -355,7 +355,7 @@ public class WeChatGZHUtil implements WeChatGzh {
         ArrayList<UploadImgResultl> resultls = new ArrayList<>();
         int length = files.length;
         String threadGroupName = "公众号批量上传本地图片";
-        ThreadPoolExecutor threadPoolExecutor = DefaultPoolExecutor.newInstance(length, threadGroupName);
+        ThreadPoolExecutor threadPoolExecutor = IPoolExecutor.newInstance(length, threadGroupName);
         for (File file : files) {
             threadPoolExecutor.submit(() -> {
                 UploadImgResultl uploadImgResult = Optional.ofNullable(uploadImageInput(type, file, token))
@@ -396,7 +396,7 @@ public class WeChatGZHUtil implements WeChatGzh {
         String apiUrl = DELETE_URL + "?access_token=" + token;
 
         List<GzhMediaBase> allGzhMedia = getAllGzhMedia(type, token);
-        ThreadPoolExecutor executor = DefaultPoolExecutor.newInstance(allGzhMedia.size() + 1, "删除公众号图片");
+        ThreadPoolExecutor executor = IPoolExecutor.newInstance(allGzhMedia.size() + 1, "删除公众号图片");
         Stack<GzhMediaBase> gzhMediaBases = new Stack<>();
         gzhMediaBases.addAll(allGzhMedia);
         Map<Integer, List<GzhMediaBase>> cutListMap = RandomUtil.cutList(gzhMediaBases, 5);

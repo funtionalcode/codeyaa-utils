@@ -55,7 +55,7 @@ public class SplitTest {
     }
 
     private static void splitNumber() {
-        Map<Long, List<Long>> res = RandomUtil.cutNumberByCode(29200009L, 100000L);
+        Map<Long, List<Long>> res = RandomUtil.cutNumber(29200009L, 100000L);
         res.forEach((k, v) -> System.out.println(String.format("%s:%s", k, v)));
         System.out.printf("总次数:%s", res.size());
     }
