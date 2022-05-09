@@ -27,7 +27,7 @@ public class BeanUtil {
         return res;
     }
 
-    public static Object getValue(Object obj, String key) {
+    public static Object getReadValue(Object obj, String key) {
         try {
             Class<?> clazz = obj.getClass();
             //使用符合JavaBean规范的属性访问器
@@ -42,7 +42,22 @@ public class BeanUtil {
         }
     }
 
-    public static void setValue(Object obj, String key, Object value) {
+    public static Object getValue(Object obj, String key) {
+        try {
+            Class<?> clazz = obj.getClass();
+            //使用符合JavaBean规范的属性访问器
+            List<Field> allFields = getAllFields(clazz).stream().filter(Objects::nonNull).peek(row -> row.setAccessible(true)).collect(Collectors.toList());
+            if (allFields.isEmpty()) {
+                return "";
+            }
+            return getField(obj, key).get(obj);
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+            return "";
+        }
+    }
+
+    public static void setReadValue(Object obj, String key, Object value) {
         try {
             //使用符合JavaBean规范的属性访问器
             PropertyDescriptor pd = new PropertyDescriptor(key, obj.getClass());
@@ -51,6 +66,15 @@ public class BeanUtil {
             writeMethod.setAccessible(true);
             writeMethod.invoke(obj, value);
         } catch (IntrospectionException | IllegalAccessException | InvocationTargetException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void setValue(Object obj, String key, Object value) {
+        try {
+            Field field = getField(obj, key);
+            field.set(obj, value);
+        } catch (IllegalAccessException e) {
             e.printStackTrace();
         }
     }
@@ -162,7 +186,7 @@ public class BeanUtil {
     public static String toString(Object obj) {
         List<String> beanNames = getBeanNames(obj.getClass());
         ArrayList<String> res = beanNames.stream()
-                .map(row -> (String) getValue(obj, row))
+                .map(row -> (String) getReadValue(obj, row))
                 .collect(Collectors.toCollection(ArrayList::new));
         return String.join(",", res);
     }
@@ -177,17 +201,35 @@ public class BeanUtil {
         return t;
     }
 
+
     /**
-     * 获取本类及其父类的属性的方法
+     * 获取本类及其父类的属性
      *
      * @param clazz 当前类对象
      * @return 字段数组
      */
-    public static List<Field> getAllFields(Class<?> clazz, List<Field> fields) {
+    public static List<Field> getAllFields(Class<?> clazz) {
+        return getAllFields(clazz.getSuperclass(), new ArrayList<>());
+    }
+
+    private static List<Field> getAllFields(Class<?> clazz, List<Field> fields) {
         if (Objects.isNull(clazz)) {
             return fields;
         }
         fields.addAll(Arrays.asList(clazz.getDeclaredFields()));
         return getAllFields(clazz.getSuperclass(), fields);
+    }
+
+    public static Field getField(Object obj, String key) {
+        if (Objects.isNull(obj)) {
+            return null;
+        }
+        Class<?> clazz = obj.getClass();
+        List<Field> allFields = getAllFields(clazz);
+        return allFields.stream()
+                .filter(row -> Objects.equals(row.getName(), key))
+                .peek(row -> row.setAccessible(true))
+                .findFirst()
+                .get();
     }
 }

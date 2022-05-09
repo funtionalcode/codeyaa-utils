@@ -1,5 +1,6 @@
 package com.codeyaa;
 
+import com.codeyaa.utils.common.reflection.BeanUtil;
 import com.codeyaa.utils.common.reflection.UnSafeUtil;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -17,7 +18,7 @@ public class UnsafeTest {
     @EqualsAndHashCode(callSuper = true)
     @Data
     @ToString(callSuper = true)
-    static class B extends C {
+    public static class B extends C {
         String a;
     }
 
@@ -35,7 +36,7 @@ public class UnsafeTest {
         A a = new A();
         a.a = "2";
         a.c = "3";
-        B clone = UnSafeUtil.clone(a, B.class);
+        B clone = BeanUtil.clone(a, B.class);
         System.out.println(clone);
     }
 

@@ -12,6 +12,8 @@ import java.util.Objects;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import static com.codeyaa.utils.common.reflection.BeanUtil.getAllFields;
+
 public class UnSafeUtil {
     private static Unsafe unSafe;
 
@@ -75,11 +77,20 @@ public class UnSafeUtil {
     public static boolean fieldInTarget(Field sourceField, Class<?> targetClazz) {
         String sourceName = sourceField.getName();
         Class<?> sourceType = sourceField.getType();
-        List<String> declaredFields = BeanUtil.getAllFields(targetClazz, new ArrayList<>())
+        List<String> declaredFields = getAllFields(targetClazz)
                 .stream()
                 .peek(row -> row.setAccessible(true))
                 .filter(row -> row.getName().equals(sourceName))
                 .filter(row -> row.getType().equals(sourceType))
+                .map(Field::getName)
+                .collect(Collectors.toList());
+        return declaredFields.contains(sourceName);
+    }
+    public static boolean fieldInTarget(String sourceName, Class<?> targetClazz) {
+        List<String> declaredFields = getAllFields(targetClazz)
+                .stream()
+                .peek(row -> row.setAccessible(true))
+                .filter(row -> Objects.equals(row.getName(), sourceName))
                 .map(Field::getName)
                 .collect(Collectors.toList());
         return declaredFields.contains(sourceName);
@@ -200,7 +211,7 @@ public class UnSafeUtil {
 
     public static Object getFieldValue(Object obj, String fieldName) {
         Class<?> objClass = obj.getClass();
-        List<Field> fields = BeanUtil.getAllFields(objClass, new ArrayList<>());
+        List<Field> fields = getAllFields(objClass);
         Field field = fields.stream()
                 .peek(row -> row.setAccessible(true))
                 .filter(row -> fieldName.equals(row.getName()))

@@ -19,12 +19,12 @@ public class BeanUtilTest {
     private static void getValue() {
         AliYunAccessKeyDto aliYunAccessKeyDto = new AliYunAccessKeyDto();
         aliYunAccessKeyDto.setAccessKeyId("`1");
-        Object accessKeyId = BeanUtil.getValue(aliYunAccessKeyDto, "accessKeyId");
+        Object accessKeyId = BeanUtil.getReadValue(aliYunAccessKeyDto, "accessKeyId");
         System.out.println("accessKeyId = " + accessKeyId);
     }
 
     private static void getClassVal() {
-        Object smallFormat = BeanUtil.getValue(Lunar.class, "smallFormat");
+        Object smallFormat = BeanUtil.getReadValue(Lunar.class, "smallFormat");
         System.out.println("smallFormat = " + smallFormat);
     }
 }
