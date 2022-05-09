@@ -38,6 +38,7 @@ public class UnsafeTest {
         a.c = "3";
         B clone = BeanUtil.clone(a, B.class);
         System.out.println(clone);
+        System.out.println(BeanUtil.getAllFields(A.class));
     }
 
     private static void mapCopyTest() {

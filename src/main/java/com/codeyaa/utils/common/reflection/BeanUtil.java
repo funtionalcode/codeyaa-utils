@@ -209,7 +209,7 @@ public class BeanUtil {
      * @return 字段数组
      */
     public static List<Field> getAllFields(Class<?> clazz) {
-        return getAllFields(clazz.getSuperclass(), new ArrayList<>());
+        return getAllFields(clazz, new ArrayList<>());
     }
 
     private static List<Field> getAllFields(Class<?> clazz, List<Field> fields) {
