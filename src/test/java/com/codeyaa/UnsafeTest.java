@@ -1,50 +1,46 @@
 package com.codeyaa;
 
+import com.codeyaa.utils.common.date.Lunar;
 import com.codeyaa.utils.common.reflection.BeanUtil;
 import com.codeyaa.utils.common.reflection.UnSafeUtil;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
+import java.math.BigDecimal;
 import java.util.HashMap;
+import java.util.Map;
 
 public class UnsafeTest {
     @EqualsAndHashCode(callSuper = true)
     @Data
     static class A extends C {
-        String a;
+        BigDecimal a;
     }
 
     @EqualsAndHashCode(callSuper = true)
     @Data
     @ToString(callSuper = true)
     public static class B extends C {
-        String a;
+        BigDecimal a;
     }
 
     @Data
     static class C {
-        String c;
+        BigDecimal c;
     }
 
     public static void main(String[] args) {
-        copyTest();
+        toMapTest();
 //        mapCopyTest();
     }
-
-    private static void copyTest() {
+    private static void toMapTest() {
         A a = new A();
-        a.a = "2";
-        a.c = "3";
+        a.a = BigDecimal.valueOf(2);
+        a.c = BigDecimal.valueOf(3);
         B clone = BeanUtil.clone(a, B.class);
         System.out.println(clone);
-        System.out.println(BeanUtil.getAllFields(A.class));
-    }
-
-    private static void mapCopyTest() {
-        HashMap<String, String> map = new HashMap<>();
-        map.put("a", "2");
-        B b = UnSafeUtil.mapClone(map, B.class);
-        System.out.println("b = " + b);
+        Map<Object, Object> toMap = UnSafeUtil.toMap(clone);
+        System.out.println(toMap);
     }
 }

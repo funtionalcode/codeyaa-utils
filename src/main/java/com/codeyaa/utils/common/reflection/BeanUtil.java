@@ -17,15 +17,6 @@ import static com.codeyaa.utils.common.reflection.UnSafeUtil.fieldInTarget;
 
 public class BeanUtil {
 
-    public static List<String> getBeanNames(Class<?> clazz) {
-        Field[] declaredFields = clazz.getDeclaredFields();
-        ArrayList<String> res = new ArrayList<>();
-        for (Field declaredField : declaredFields) {
-            declaredField.setAccessible(true);
-            res.add(declaredField.getName());
-        }
-        return res;
-    }
 
     public static Object getReadValue(Object obj, String key) {
         try {
@@ -184,7 +175,11 @@ public class BeanUtil {
     }
 
     public static String toString(Object obj) {
-        List<String> beanNames = getBeanNames(obj.getClass());
+        List<String> beanNames = getAllFields(obj.getClass())
+                .stream()
+                .map(Field::getName)
+                .collect(Collectors.toList());
+
         ArrayList<String> res = beanNames.stream()
                 .map(row -> (String) getReadValue(obj, row))
                 .collect(Collectors.toCollection(ArrayList::new));
@@ -218,6 +213,13 @@ public class BeanUtil {
         }
         fields.addAll(Arrays.asList(clazz.getDeclaredFields()));
         return getAllFields(clazz.getSuperclass(), fields);
+    }
+
+    public static List<String> getBeanNames(Class<?> clazz) {
+        return getAllFields(clazz)
+                .stream()
+                .map(Field::getName)
+                .collect(Collectors.toList());
     }
 
     public static Field getField(Object obj, String key) {

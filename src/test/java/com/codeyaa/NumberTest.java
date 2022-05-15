@@ -32,7 +32,7 @@ public class NumberTest {
     }
 
     private static void unitTest() {
-        System.out.println(NumberUtil.unitHashRate(204871500d));
+        System.out.println(NumberUtil.unitHashRate(6031083396d));
     }
 
     private static void recursionListTest() {

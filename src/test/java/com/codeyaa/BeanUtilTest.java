@@ -27,4 +27,7 @@ public class BeanUtilTest {
         Object smallFormat = BeanUtil.getReadValue(Lunar.class, "smallFormat");
         System.out.println("smallFormat = " + smallFormat);
     }
+
+
+
 }

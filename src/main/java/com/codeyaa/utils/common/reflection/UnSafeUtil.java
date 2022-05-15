@@ -5,7 +5,7 @@ import sun.misc.Unsafe;
 import java.lang.reflect.Field;
 import java.time.*;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -66,34 +66,30 @@ public class UnSafeUtil {
         }
     }
 
-    /**
-     * 校验字段是否在目标字段中
-     * 校验字段名称、字段数据类型
-     *
-     * @param sourceField 源字段
-     * @param targetClazz 目标类型
-     * @return
-     */
-    public static boolean fieldInTarget(Field sourceField, Class<?> targetClazz) {
-        String sourceName = sourceField.getName();
-        Class<?> sourceType = sourceField.getType();
-        List<String> declaredFields = getAllFields(targetClazz)
-                .stream()
-                .peek(row -> row.setAccessible(true))
-                .filter(row -> row.getName().equals(sourceName))
-                .filter(row -> row.getType().equals(sourceType))
-                .map(Field::getName)
-                .collect(Collectors.toList());
-        return declaredFields.contains(sourceName);
+    public static Map<Object, Object> toMap(Object object) {
+        return toMap(object, object.getClass(), new HashMap<>());
     }
-    public static boolean fieldInTarget(String sourceName, Class<?> targetClazz) {
-        List<String> declaredFields = getAllFields(targetClazz)
-                .stream()
-                .peek(row -> row.setAccessible(true))
-                .filter(row -> Objects.equals(row.getName(), sourceName))
-                .map(Field::getName)
-                .collect(Collectors.toList());
-        return declaredFields.contains(sourceName);
+
+    private static Map<Object, Object> toMap(Object object, Class<?> clazz, Map<Object, Object> map) {
+        try {
+            if (Objects.isNull(object) || Objects.isNull(clazz)) {
+                return map;
+            }
+            // 获取目标类中的所有字段
+            Field[] fields = clazz.getDeclaredFields();
+            for (Field field : fields) {
+                field.setAccessible(true);
+                String fieldName = field.getName();
+                Object fieldValue = getFieldValue(object, fieldName);
+                // 赋值到目标类
+                map.put(fieldName, fieldValue);
+            }
+            return toMap(object, clazz.getSuperclass(), map);
+        } catch (
+                Exception e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
     public static <T> T mapClone(Map map, Class<T> clazz) {
@@ -119,6 +115,38 @@ public class UnSafeUtil {
         }
         return res;
     }
+
+    /**
+     * 校验字段是否在目标字段中
+     * 校验字段名称、字段数据类型
+     *
+     * @param sourceField 源字段
+     * @param targetClazz 目标类型
+     * @return
+     */
+    public static boolean fieldInTarget(Field sourceField, Class<?> targetClazz) {
+        String sourceName = sourceField.getName();
+        Class<?> sourceType = sourceField.getType();
+        List<String> declaredFields = getAllFields(targetClazz)
+                .stream()
+                .peek(row -> row.setAccessible(true))
+                .filter(row -> row.getName().equals(sourceName))
+                .filter(row -> row.getType().equals(sourceType))
+                .map(Field::getName)
+                .collect(Collectors.toList());
+        return declaredFields.contains(sourceName);
+    }
+
+    public static boolean fieldInTarget(String sourceName, Class<?> targetClazz) {
+        List<String> declaredFields = getAllFields(targetClazz)
+                .stream()
+                .peek(row -> row.setAccessible(true))
+                .filter(row -> Objects.equals(row.getName(), sourceName))
+                .map(Field::getName)
+                .collect(Collectors.toList());
+        return declaredFields.contains(sourceName);
+    }
+
 
     /**
      * 转换List的时间类型并返回秒数
@@ -149,6 +177,7 @@ public class UnSafeUtil {
         }).collect(Collectors.toList());
         return records;
     }
+
 
     /**
      * 转换List的时间类型并返回毫秒数
