@@ -3,9 +3,7 @@ package com.codeyaa;
 import com.codeyaa.utils.common.date.Lunar;
 import com.codeyaa.utils.common.reflection.BeanUtil;
 import com.codeyaa.utils.common.reflection.UnSafeUtil;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.ToString;
+import lombok.*;
 
 import java.math.BigDecimal;
 import java.util.HashMap;
@@ -16,6 +14,7 @@ public class UnsafeTest {
     @Data
     static class A extends C {
         BigDecimal a;
+        Dogo dogo;
     }
 
     @EqualsAndHashCode(callSuper = true)
@@ -23,11 +22,19 @@ public class UnsafeTest {
     @ToString(callSuper = true)
     public static class B extends C {
         BigDecimal a;
+        Dogo dogo;
     }
 
     @Data
     static class C {
         BigDecimal c;
+    }
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    static class Dogo {
+        BigDecimal dog;
     }
 
     public static void main(String[] args) {
@@ -38,6 +45,7 @@ public class UnsafeTest {
         A a = new A();
         a.a = BigDecimal.valueOf(2);
         a.c = BigDecimal.valueOf(3);
+        a.dogo = Dogo.builder().dog(BigDecimal.TEN).build();
         B clone = BeanUtil.clone(a, B.class);
         System.out.println(clone);
         Map<Object, Object> toMap = UnSafeUtil.toMap(clone);
