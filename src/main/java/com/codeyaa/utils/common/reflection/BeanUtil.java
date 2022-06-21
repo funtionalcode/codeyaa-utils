@@ -16,8 +16,6 @@ import java.util.stream.Collectors;
 import static com.codeyaa.utils.common.reflection.UnSafeUtil.fieldInTarget;
 
 public class BeanUtil {
-
-
     public static Object getReadValue(Object obj, String key) {
         try {
             Class<?> clazz = obj.getClass();

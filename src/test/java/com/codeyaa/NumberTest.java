@@ -3,19 +3,15 @@ package com.codeyaa;
 import com.codeyaa.utils.common.NumberUtil;
 
 import java.math.BigDecimal;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Properties;
-import java.util.Set;
+import java.util.*;
 
 public class NumberTest {
     public static void main(String[] args) {
-        unitTest();
+        bigTest();
     }
 
     private static void bigTest() {
-        BigDecimal bigDecimal = new BigDecimal("0");
-        System.out.println(bigDecimal.equals(BigDecimal.ZERO));
+        System.out.println(Objects.equals(Byte.valueOf("1"),(byte)1));
     }
 
     private static void systemTest() {
@@ -33,6 +29,9 @@ public class NumberTest {
 
     private static void unitTest() {
         System.out.println(NumberUtil.unitHashRate(6031083396d));
+    }
+    private static void unitFileTest() {
+        System.out.println(NumberUtil.unitFileRate(514333d*1024));
     }
 
     private static void recursionListTest() {

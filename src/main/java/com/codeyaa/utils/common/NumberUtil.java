@@ -1,5 +1,7 @@
 package com.codeyaa.utils.common;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.Arrays;
 import java.util.List;
 
@@ -21,6 +23,17 @@ public class NumberUtil {
         String unit = index <= 1 ? "H/s" : unitNames.get(index - 2);
         return String.format("%s %s", data / Math.pow(10, (index == 0 ? 1 : index) * 3), unit);
     }
+
+    public static String unitFileRate(Double fileSize) {
+        List<String> unitNames = Arrays.asList("K", "M", "G", "T", "P", "E", "ZH");
+        // 单位下标
+        int index = Double.valueOf(log(1024D, fileSize) + "").intValue();
+        // 单位
+        String unit = unitNames.get(index - 1);
+        BigDecimal finalFileSize = BigDecimal.valueOf(fileSize / Math.pow(1024, index)).setScale(2, RoundingMode.DOWN);
+        return String.format("%s %s", finalFileSize, unit);
+    }
+
 
     /**
      * logx y

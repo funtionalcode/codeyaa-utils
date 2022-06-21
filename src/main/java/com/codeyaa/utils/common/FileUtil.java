@@ -143,13 +143,15 @@ public class FileUtil {
         try {
             //<1>创建字节数组输出流，用来输出读取到的内容
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            //<2>创建缓存大小
-            byte[] buffer = new byte[1024]; // 1KB
+            //<2>创建缓存大小  1KB
+            byte[] buffer = new byte[1024];
             //每次读取到内容的长度
-            int len = -1;
+            int len;
             //<3>开始读取输入流中的内容
-            while ((len = in.read(buffer)) != -1) { //当等于-1说明没有数据可以读取了
-                baos.write(buffer, 0, len);   //把读取到的内容写到输出流中
+            //当等于-1说明没有数据可以读取了
+            while ((len = in.read(buffer)) != -1) {
+                //把读取到的内容写到输出流中
+                baos.write(buffer, 0, len);
             }
             //<4> 把字节数组转换为字符串
             String content = baos.toString();

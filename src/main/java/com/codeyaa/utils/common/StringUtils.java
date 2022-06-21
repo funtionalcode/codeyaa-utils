@@ -2,10 +2,10 @@ package com.codeyaa.utils.common;
 
 import com.qiniu.common.Constants;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 /**
  * @author Funtionalcode
@@ -18,6 +18,7 @@ public class StringUtils {
      * @description 中文正则
      */
     public static String cnRegex = "[\\u4E00-\\u9FA5]";
+    public static final String NUM_REGEX = "[0-9]+";
 
     public static boolean isBlank(String str) {
         return null == str || str.isEmpty();
@@ -82,4 +83,61 @@ public class StringUtils {
         return item;
     }
 
+    public static Long chineseNumberToInt(String chineseNumber) {
+        Deque<Character> deque = new ArrayDeque<>();
+        char[] chars = chineseNumber.toCharArray();
+        // 构建先进先出队列
+        for (int i = chars.length - 1; i >= 0; i--) {
+            deque.push(chars[i]);
+        }
+        return chineseNumberToInt(deque, new ArrayDeque<>(), 0L);
+    }
+
+    public static Long chineseNumberToInt(Deque<Character> chineseNumbers, Deque<Integer> numberQueue, Long number) {
+        String val = "零一二三四五六七八九";
+        String valChineseUnit = "十百千万亿";
+        int[] valNumberUnit = {10, 100, 1000, 10000, 100000000};
+        Character chineseNumber = chineseNumbers.poll();
+        if (Objects.isNull(chineseNumber) || Objects.equals("零", chineseNumber)) {
+            // 出队列求和
+            return number + numberQueue.stream().filter(Objects::nonNull).mapToLong(Long::valueOf).sum();
+        }
+        // 个位数入队列
+        if (valChineseUnit.indexOf(chineseNumber) == -1) {
+            numberQueue.push(val.indexOf(chineseNumber));
+        }
+        int valNumberIndex = valChineseUnit.indexOf(chineseNumber);
+        // 十 单位以上 *= 入队列
+        if (valNumberIndex != -1) {
+            int currentNumberUnit = valNumberUnit[valNumberIndex];
+            // 队列为空直接入队列
+            int currentNumberQueue = Optional.ofNullable(numberQueue.peek()).orElse(-1);
+            if (currentNumberQueue < currentNumberUnit) {
+                // 队列为空默认值 1 用于 *=
+                int currentVal = Optional.ofNullable(numberQueue.poll()).orElse(1);
+                // 队列不为空 *= 再入队列
+                numberQueue.push(currentVal * currentNumberUnit);
+            }
+        }
+        return chineseNumberToInt(chineseNumbers, numberQueue, number);
+    }
+
+    public static List<String> sortChapterNovel(List<String> chineseNumbers) {
+        return chineseNumbers.stream().sorted((a, b) -> {
+            // 中文数字排序
+            if (getRegexString(NUM_REGEX, a).isEmpty()) {
+                String aChina = getNovelNumberString(a);
+                String bChina = getNovelNumberString(b);
+                return chineseNumberToInt(aChina).compareTo(chineseNumberToInt(bChina));
+            }
+            // 阿拉伯数字排序
+            Integer aInt = Integer.valueOf(getRegexString(NUM_REGEX, a).get(0));
+            Integer bInt = Integer.valueOf(getRegexString(NUM_REGEX, b).get(0));
+            return aInt.compareTo(bInt);
+        }).collect(Collectors.toList());
+    }
+
+    private static String getNovelNumberString(String str) {
+        return str.substring(1, str.indexOf("章"));
+    }
 }

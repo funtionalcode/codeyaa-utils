@@ -10,6 +10,9 @@ public class RandomUtil {
     public static int randomInt(int min, int max) {
         return min + (int) (Math.random() * (max - min + 1));
     }
+    public static long randomLong(long min, long max) {
+        return min + (long) (Math.random() * (max - min + 1));
+    }
 
     /**
      * Map 切割成 num 份
