@@ -2,19 +2,19 @@ package com.codeyaa.utils.common;
 
 import org.apache.commons.codec.binary.Base64;
 
-import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
 
 public class MD5Util {
-    public static String makeAuth(String username,String password){
-        String loginUser = username+":"+password;
+    public static String makeAuth(String username, String password) {
+        String loginUser = username + ":" + password;
         try {
-            return "Basic "+ Base64.encodeBase64String(loginUser.getBytes());
+            return "Basic " + Base64.encodeBase64String(loginUser.getBytes());
         } catch (Exception e) {
             e.printStackTrace();
         }
         return null;
     }
+
     private static String byteArrayToHexString(byte b[]) {
         StringBuffer resultSb = new StringBuffer();
         for (int i = 0; i < b.length; i++) {
@@ -33,7 +33,11 @@ public class MD5Util {
         return hexDigits[d1] + hexDigits[d2];
     }
 
-    public static String MD5Encode(String origin, String charsetname) {
+    public static String encode(String origin) {
+        return encode(origin, "");
+    }
+
+    public static String encode(String origin, String charsetname) {
         String resultString = null;
         try {
             resultString = origin;

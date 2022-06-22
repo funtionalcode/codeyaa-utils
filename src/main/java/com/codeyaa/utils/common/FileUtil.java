@@ -79,7 +79,7 @@ public class FileUtil {
             StringBuilder sb = new StringBuilder();
             String s;
             while ((s = br.readLine()) != null) {
-                sb.append(s).append("\r\n");
+                sb.append(s).append("\n");
             }
             return sb.toString();
         } catch (IOException e) {
@@ -113,7 +113,7 @@ public class FileUtil {
             StringBuilder sb = new StringBuilder();
             String s;
             while ((s = br.readLine()) != null) {
-                sb.append(s).append("\r\n");
+                sb.append(s).append("\n");
             }
             return sb.toString();
         } catch (IOException e) {

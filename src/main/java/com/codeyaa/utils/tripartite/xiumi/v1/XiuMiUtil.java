@@ -61,8 +61,8 @@ public class XiuMiUtil {
         Arrays.sort(params);
         String flagStr = params[0] + params[1] + params[2] + params[3];
         // 计算两次获取MD5
-        String tokenOne = MD5Util.MD5Encode(flagStr,"utf-8");
-        signature = MD5Util.MD5Encode(tokenOne,"utf-8");
+        String tokenOne = MD5Util.encode(flagStr,"utf-8");
+        signature = MD5Util.encode(tokenOne,"utf-8");
 
         String loginUrl = pre + "route_type=" + route_type +
                 "&signature=" + signature + "&timestamp=" + timestamp +
@@ -94,7 +94,7 @@ public class XiuMiUtil {
 
         HashMap<String, String> map = new HashMap<>();
         map.put("error", "signature does not match token");
-        String xiumi_token = MD5Util.MD5Encode(String.valueOf(System.currentTimeMillis()), "utf-8");
+        String xiumi_token = MD5Util.encode(String.valueOf(System.currentTimeMillis()), "utf-8");
         if (checkSign(timestamp, nonce, appId, signature)) {
             return xiumi_token;
         } else {
@@ -125,8 +125,8 @@ public class XiuMiUtil {
         Arrays.sort(params);
         String flagStr = String.join("", params);
         // 计算两次获取MD5
-        String tokenOne = MD5Util.MD5Encode(flagStr, "utf-8");
-        String tokenTwo = MD5Util.MD5Encode(tokenOne, "utf-8");
+        String tokenOne = MD5Util.encode(flagStr, "utf-8");
+        String tokenTwo = MD5Util.encode(tokenOne, "utf-8");
         return tokenTwo.equals(signature);
     }
 }
