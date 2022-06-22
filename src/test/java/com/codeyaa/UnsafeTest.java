@@ -48,7 +48,7 @@ public class UnsafeTest {
         a.dogo = Dogo.builder().dog(BigDecimal.TEN).build();
         B clone = BeanUtil.clone(a, B.class);
         System.out.println(clone);
-        Map<Object, Object> toMap = UnSafeUtil.toMap(clone);
+        Map<String, Object> toMap = UnSafeUtil.toMap(clone);
         System.out.println(toMap);
     }
 }

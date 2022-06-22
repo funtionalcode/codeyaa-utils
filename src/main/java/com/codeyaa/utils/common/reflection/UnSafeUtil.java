@@ -66,11 +66,11 @@ public class UnSafeUtil {
         }
     }
 
-    public static Map<Object, Object> toMap(Object object) {
+    public static Map<String, Object> toMap(Object object) {
         return toMap(object, object.getClass(), new HashMap<>());
     }
 
-    private static Map<Object, Object> toMap(Object object, Class<?> clazz, Map<Object, Object> map) {
+    private static Map<String, Object> toMap(Object object, Class<?> clazz, Map<String, Object> map) {
         try {
             if (Objects.isNull(object) || Objects.isNull(clazz)) {
                 return map;
