@@ -52,12 +52,15 @@ public class DateTest {
     }
 
     private static void unitTest() {
-        String unitDate = DateUtil.unitDate(31104000000L);
+        String unitDate = DateUtil.unitDate(8127166656185600000L);
+        unitDate = "4小时";
         System.out.println("unitDate = " + unitDate);
+        long strConvertMillis = DateUtil.unitDateStr(unitDate);
+        System.out.println("strConvertMillis = " + strConvertMillis);
     }
 
     private static void parseMilis() {
-        String unitDate = DateUtil.parseMilis(14400*1000L);
+        String unitDate = DateUtil.parseMilis(14400 * 1000L);
         System.out.println("unitDate = " + unitDate);
     }
 

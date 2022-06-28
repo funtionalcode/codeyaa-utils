@@ -36,6 +36,8 @@ public class DateUtil {
     public static final String CN_S = "HH:mm:ss";
     public static final String SPOT = "yyyy.MM.dd";
     public static final String RFC_1123 = "EEE, dd MMM yyyy HH:mm:ss z";
+    public static final List<String> unitNames = Arrays.asList("毫秒", "秒", "分钟", "小时", "天", "月", "年");
+    public static final List<Long> unitConvert = Arrays.asList(1000L, 60L, 60L, 24L, 30L, 12L);
 
     /**
      * @param localDate LocalDate
@@ -257,28 +259,6 @@ public class DateUtil {
         return null;
     }
 
-    /**
-     * 1、普通年能被4整除且不能被100整除的为闰年。（如2004年就是闰年,1900年不是闰年）
-     * 2、世纪年能被400整除的是闰年。(如2000年是闰年，1900年不是闰年)
-     * 3、对于数值很大的年份,这年如果能整除3200，并且能整除172800则是闰年。
-     */
-    public static ArrayList<ArrayList<Integer>> isRun(int start, int end) {
-        // 2.29
-        ArrayList<Integer> runs = new ArrayList<Integer>();
-        // 2.28
-        ArrayList<Integer> pins = new ArrayList<Integer>();
-        for (int i = start; i <= end; i++) {
-            if ((i % 4 == 0 && i % 100 != 0) || i % 400 == 0 || (i % 3200 == 0 && i % 172800 == 0)) {
-                runs.add(i);
-            } else {
-                pins.add(i);
-            }
-        }
-        ArrayList<ArrayList<Integer>> rs = new ArrayList<>();
-        rs.add(runs);
-        rs.add(pins);
-        return rs;
-    }
 
     public static String parseMilis(Long milis) {
         if (milis <= 1000) {
@@ -295,20 +275,19 @@ public class DateUtil {
 
     public static String unitDate(Long date) {
         ArrayList<String> resList = new ArrayList<>();
-        List<String> unitNames = Arrays.asList("毫秒", "秒", "分钟", "小时", "天", "月", "年");
-        List<Long> unitConvert = Arrays.asList(1000L, 60L, 60L, 24L, 30L, 12L);
 
-        List<Long> resConvert = new ArrayList<>(unitConvert.subList(4, unitConvert.size()));
+        List<Long> resConvert = new ArrayList<>(unitConvert.subList(unitConvert.size() - 2, unitConvert.size()));
         resConvert.add(1L);
 
-        List<String> unitDates = unitDate(date, resList, unitNames, unitConvert);
+        List<String> unitDates = unitDate(date, resList, unitNames, unitConvert, true);
 
         boolean year = false;
+        Long currentDateNum = 0L;
         for (String unitDate : unitDates) {
             if (year) {
                 break;
             }
-            Long currentDateNum = StringUtils.getRegexString("\\d+", unitDate).stream().map(Long::parseLong).collect(Collectors.toList()).get(0);
+            currentDateNum = StringUtils.getRegexString("\\d+", unitDate).stream().map(Long::parseLong).collect(Collectors.toList()).get(0);
             year = unitDate.contains(unitNames.get(6)) && currentDateNum > 0;
         }
 
@@ -318,28 +297,29 @@ public class DateUtil {
             boolean run = isRun(currentYear);
             // 按每个月30天 按 2月31天 1年缺少6天
             // 闰年则需要加 6 - (31 - 29) = 4 天
-            int addDay = run ? 4 : 3;
+            long addDay = run ? currentDateNum * 4 : currentDateNum * 3;
 
-            addYearDay(addDay, resList, resConvert);
+//            addYearDay(addDay, resList, resConvert);
+        } else {
+            resList.clear();
+            unitDates = unitDate(date, resList, unitNames, unitConvert, false);
         }
 
 
         return String.join("", unitDates);
     }
 
-    private static void addYearDay(int addDay, List<String> resList, List<Long> unitConvert) {
+    private static void addYearDay(long addDay, List<String> resList, List<Long> unitConvert) {
 
         // 先进后出
-        Stack<Long> addStack = resList.stream()
-                .map(row -> StringUtils.getRegexString("[0-9]+", row).get(0))
+        List<Long> addStack = resList.stream()
+                .map(row -> StringUtils.getRegexString("\\d+", row).get(0))
                 .map(Long::parseLong)
-                .collect(Collectors.toCollection(Stack::new));
+                .collect(Collectors.toList());
 
-        for (int i = 0; i < 3; i++) {
-            addStack.pop();
-        }
+        addStack = addStack.subList(0, addStack.size() - 4);
 
-        Stack<Long> uppList = addYearDay(addDay, 2, false, addStack, unitConvert);
+        List<Long> uppList = addYearDay(addDay, 2, false, addStack, unitConvert);
         for (int i = 0; i < uppList.size(); i++) {
             String currentUnit = resList.get(i);
             Long currentUpp = uppList.get(i);
@@ -348,22 +328,26 @@ public class DateUtil {
 
     }
 
-    private static Stack<Long> addYearDay(int addDay, int index, boolean upper, Stack<Long> addStack, List<Long> unitConvert) {
-        if (index == 0) {
+    private static List<Long> addYearDay(long addDay, int index, boolean upper, List<Long> addStack, List<Long> unitConvert) {
+        if (index == -1) {
             return addStack;
         }
         Long pop = addStack.get(index);
+        Long currentConvert = unitConvert.get(Math.abs(index - 2));
         // 进1
         // 增加缺少的天数
-        long currentUnit = upper ? pop + 1 : index == 2 ? pop + addDay : pop;
-        Long currentConvert = unitConvert.get(Math.abs(index - 2));
+        long currentUnit = upper ? pop + addDay / currentConvert : index == 2 ? pop + addDay : pop;
         if (currentUnit < currentConvert) {
             addStack.set(index, currentUnit);
             return addYearDay(addDay, index - 1, false, addStack, unitConvert);
         }
-        // 超过当前单位赋值 Max - 1
-        addStack.set(index, currentUnit % currentConvert);
-        return addYearDay(addDay, index - 1, true, addStack, unitConvert);
+        if (index == 0) {
+            addStack.set(index, currentUnit);
+        } else {
+            // 超过当前单位赋值求余
+            addStack.set(index, currentUnit % currentConvert);
+        }
+        return addYearDay(addDay / currentConvert, index - 1, true, addStack, unitConvert);
     }
 
     /**
@@ -373,11 +357,11 @@ public class DateUtil {
      * @param resList
      * @return
      */
-    private static List<String> unitDate(Long date, List<String> resList, List<String> unitNames, List<Long> unitConvert) {
-        return unitDate(date, unitConvert.size() - 1, resList, unitNames, unitConvert);
+    private static List<String> unitDate(Long date, List<String> resList, List<String> unitNames, List<Long> unitConvert, boolean enYear) {
+        return unitDate(date, unitConvert.size() - 1, resList, unitNames, unitConvert, enYear);
     }
 
-    private static List<String> unitDate(Long date, int index, List<String> resList, List<String> unitNames, List<Long> unitConvert) {
+    private static List<String> unitDate(Long date, int index, List<String> resList, List<String> unitNames, List<Long> unitConvert, boolean enYear) {
         // 当前单位多少秒
         Long currentSecond = NumberUtil.recursionList(unitConvert, index);
         // 当前单位求余
@@ -388,20 +372,62 @@ public class DateUtil {
             resList.add(String.format("%s%s", currentUnit, unitNames.get(index + 1)));
             // 匹配到存在该单位 下一步
             date = date - currentUnit * currentSecond;
-        } else {
+        } else if (enYear) {
             resList.add(String.format("%s%s", 0, unitNames.get(index + 1)));
         }
         if (index == 0) {
             // 最后一个单位直接赋值
-            if (date > 0) {
+            if (date > 0 || enYear) {
                 resList.add(String.format("%s%s", date, unitNames.get(0)));
             }
             return resList;
         }
-        return unitDate(date, index - 1, resList, unitNames, unitConvert);
+        return unitDate(date, index - 1, resList, unitNames, unitConvert, enYear);
+    }
+
+    public static long unitDateStr(String dateStr) {
+        List<Long> nums = StringUtils.getRegexString("\\d+", dateStr).stream().map(Long::parseLong).collect(Collectors.toList());
+        List<String> units = StringUtils.getRegexString("[^\\d]+", dateStr);
+
+        List<Long> unitNums = units.stream()
+                .map(unitNames::indexOf)
+                .map(row -> row - 1)
+                .map(row -> row == -1 ? 1 : NumberUtil.recursionList(unitConvert, row))
+                .collect(Collectors.toList());
+
+        long res = 0L;
+        for (int i = 0; i < nums.size(); i++) {
+            res += nums.get(i) * unitNums.get(i);
+        }
+
+        return res;
+
     }
 
     public static boolean isRun(Long year) {
-        return year % 4 == 0 || year % 400 == 0;
+        return (year % 4 == 0 && year % 100 != 0) || year % 400 == 0 || (year % 3200 == 0 && year % 172800 == 0);
+    }
+
+    /**
+     * 1、普通年能被4整除且不能被100整除的为闰年。（如2004年就是闰年,1900年不是闰年）
+     * 2、世纪年能被400整除的是闰年。(如2000年是闰年，1900年不是闰年)
+     * 3、对于数值很大的年份,这年如果能整除3200，并且能整除172800则是闰年。
+     */
+    public static List<List<Integer>> isRun(int start, int end) {
+        // 2.29
+        List<Integer> runs = new ArrayList<>();
+        // 2.28
+        List<Integer> pins = new ArrayList<>();
+        for (int i = start; i <= end; i++) {
+            if (isRun(Long.parseLong(i + ""))) {
+                runs.add(i);
+            } else {
+                pins.add(i);
+            }
+        }
+        List<List<Integer>> rs = new ArrayList<>();
+        rs.add(runs);
+        rs.add(pins);
+        return rs;
     }
 }

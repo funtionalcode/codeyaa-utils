@@ -58,7 +58,7 @@ public class NumberUtil {
      * @return
      */
     public static Long recursionList(List<Long> list, int index) {
-        if (index == 0) {
+        if (index <= 0) {
             return list.get(index);
         }
         return recursionList(list, index - 1) * list.get(index);
