@@ -46,6 +46,17 @@ public class NumberUtil {
         return Math.log(y) / Math.log(x);
     }
 
+    public static Long recursionList(List<Long> list) {
+        return recursionList(list, list.size() - 1);
+    }
+
+    /**
+     * 阶乘
+     *
+     * @param list  列表
+     * @param index 阶乘下标截止
+     * @return
+     */
     public static Long recursionList(List<Long> list, int index) {
         if (index == 0) {
             return list.get(index);

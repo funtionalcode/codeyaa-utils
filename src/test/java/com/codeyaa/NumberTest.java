@@ -7,7 +7,7 @@ import java.util.*;
 
 public class NumberTest {
     public static void main(String[] args) {
-        bigTest();
+        recursionListTest();
     }
 
     private static void bigTest() {
@@ -36,6 +36,14 @@ public class NumberTest {
 
     private static void recursionListTest() {
         List<Long> longs = Arrays.asList(2L, 2L, 3L, 4L);
-        System.out.println(NumberUtil.recursionList(longs, 2));
+        System.out.println(NumberUtil.recursionList(longs));
+    }
+
+    private static void stackTest(){
+        Queue<Integer> integers = new ArrayDeque<>();
+        integers.add(1);
+        integers.add(2);
+        integers.poll();
+        System.out.println(integers);
     }
 }

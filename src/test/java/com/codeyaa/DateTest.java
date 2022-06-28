@@ -52,7 +52,12 @@ public class DateTest {
     }
 
     private static void unitTest() {
-        String unitDate = DateUtil.unitDate((7200 + 1) * 1000d);
+        String unitDate = DateUtil.unitDate(31104000000L);
+        System.out.println("unitDate = " + unitDate);
+    }
+
+    private static void parseMilis() {
+        String unitDate = DateUtil.parseMilis(14400*1000L);
         System.out.println("unitDate = " + unitDate);
     }
 

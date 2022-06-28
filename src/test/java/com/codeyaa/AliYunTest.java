@@ -15,7 +15,6 @@ public class AliYunTest {
 
     static {
         String fileName = "c:\\cert\\alisk\\LZYAccessKey.csv"; // lzy
-//        String fileName = "c:\\cert\\alisk\\QPAccessKey.csv"; // qp
         AliYunAccessKeyDto as = null;
         try {
             as = Files.lines(Paths.get(fileName))
@@ -29,7 +28,6 @@ public class AliYunTest {
         aliYunUtil = new AliYunUtil(as.getAccessKeyId(), as.getAccessKeySecret());
         aliYunUtil.setEndpoint("ecs.aliyuncs.com");
         aliYunUtil.setSecurityGroupId("sg-2ze497ru6iyk02y341nf"); // lzy
-//        aliYunUtil.setSecurityGroupId("sg-2ze85m9yb0gb5f49bz6o"); // qp
         aliYunUtil.setSourceCidrIp("0.0.0.0/0");
         aliYunUtil.setIpProtocol("tcp");
         aliYunUtil.setRegionId("cn-beijing");
@@ -42,8 +40,8 @@ public class AliYunTest {
     }
 
     private static void authPort() {
-        String ports = "web-debug: 5005\n";
-//        String ports = "frps: 7000-7010\n";
+//        String ports = "web-debug: 5005\n";
+        String ports = "jvm: 9001-9009\n";
         List<HashMap<String, List>> port = analysisPort(ports);
         for (HashMap<String, List> map : port) {
             addPort(map);
@@ -78,7 +76,6 @@ public class AliYunTest {
             aliYunUtil.setPortRange(String.format("%s/%s", portList.get(0), portList.get(1)));
         } else {
             aliYunUtil.setPortRange(String.format("%s/%s", one, one));
-
         }
         aliYunUtil.setNicType("internet");
         aliYunUtil.setPolicy("accept");

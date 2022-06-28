@@ -2,6 +2,7 @@ package com.codeyaa.utils.common.date;
 
 
 import com.codeyaa.utils.common.NumberUtil;
+import com.codeyaa.utils.common.StringUtils;
 
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -292,51 +293,115 @@ public class DateUtil {
         return "";
     }
 
-    public static String unitDate(Double date) {
-        // 多少个零
-        int num = (date.longValue() + "").length() - 1;
-        if (num <= 2) {
-            return String.format("%s %s", date, "毫秒");
-        }
-        date = date / 1000;
+    public static String unitDate(Long date) {
         ArrayList<String> resList = new ArrayList<>();
-        Double hour = unitHour(date, 1, resList);
+        List<String> unitNames = Arrays.asList("毫秒", "秒", "分钟", "小时", "天", "月", "年");
+        List<Long> unitConvert = Arrays.asList(1000L, 60L, 60L, 24L, 30L, 12L);
 
-        unitDate(date.longValue(), 3, resList);
-        return String.join("", resList);
+        List<Long> resConvert = new ArrayList<>(unitConvert.subList(4, unitConvert.size()));
+        resConvert.add(1L);
+
+        List<String> unitDates = unitDate(date, resList, unitNames, unitConvert);
+
+        boolean year = false;
+        for (String unitDate : unitDates) {
+            if (year) {
+                break;
+            }
+            Long currentDateNum = StringUtils.getRegexString("\\d+", unitDate).stream().map(Long::parseLong).collect(Collectors.toList()).get(0);
+            year = unitDate.contains(unitNames.get(6)) && currentDateNum > 0;
+        }
+
+        if (year) {
+            DateTimeFormatter inFormat = DateTimeFormatter.ofPattern("yyyy");
+            Long currentYear = Long.parseLong(LocalDate.now().format(inFormat));
+            boolean run = isRun(currentYear);
+            // 按每个月30天 按 2月31天 1年缺少6天
+            // 闰年则需要加 6 - (31 - 29) = 4 天
+            int addDay = run ? 4 : 3;
+
+            addYearDay(addDay, resList, resConvert);
+        }
+
+
+        return String.join("", unitDates);
     }
 
-    private static Double unitHour(Double date, int index, List<String> resList) {
-        List<String> unitNames = Arrays.asList("秒", "分钟", "小时");
-        List<Long> unitConvert = Arrays.asList(60L, 60L);
+    private static void addYearDay(int addDay, List<String> resList, List<Long> unitConvert) {
+
+        // 先进后出
+        Stack<Long> addStack = resList.stream()
+                .map(row -> StringUtils.getRegexString("[0-9]+", row).get(0))
+                .map(Long::parseLong)
+                .collect(Collectors.toCollection(Stack::new));
+
+        for (int i = 0; i < 3; i++) {
+            addStack.pop();
+        }
+
+        Stack<Long> uppList = addYearDay(addDay, 2, false, addStack, unitConvert);
+        for (int i = 0; i < uppList.size(); i++) {
+            String currentUnit = resList.get(i);
+            Long currentUpp = uppList.get(i);
+            resList.set(i, currentUnit.replaceAll("\\d+", currentUpp + ""));
+        }
+
+    }
+
+    private static Stack<Long> addYearDay(int addDay, int index, boolean upper, Stack<Long> addStack, List<Long> unitConvert) {
+        if (index == 0) {
+            return addStack;
+        }
+        Long pop = addStack.get(index);
+        // 进1
+        // 增加缺少的天数
+        long currentUnit = upper ? pop + 1 : index == 2 ? pop + addDay : pop;
+        Long currentConvert = unitConvert.get(Math.abs(index - 2));
+        if (currentUnit < currentConvert) {
+            addStack.set(index, currentUnit);
+            return addYearDay(addDay, index - 1, false, addStack, unitConvert);
+        }
+        // 超过当前单位赋值 Max - 1
+        addStack.set(index, currentUnit % currentConvert);
+        return addYearDay(addDay, index - 1, true, addStack, unitConvert);
+    }
+
+    /**
+     * 获取当前时间戳的最大单位
+     *
+     * @param date    时间戳/秒
+     * @param resList
+     * @return
+     */
+    private static List<String> unitDate(Long date, List<String> resList, List<String> unitNames, List<Long> unitConvert) {
+        return unitDate(date, unitConvert.size() - 1, resList, unitNames, unitConvert);
+    }
+
+    private static List<String> unitDate(Long date, int index, List<String> resList, List<String> unitNames, List<Long> unitConvert) {
         // 当前单位多少秒
         Long currentSecond = NumberUtil.recursionList(unitConvert, index);
-        // 当前单位进制位
-        Long currentConvert = unitConvert.get(index);
+        // 当前单位求余
         double remainder = date % currentSecond;
         if (remainder != date) {
-            double currentUnit = (date - remainder) / currentConvert;
-            resList.add(String.format("%s%s", currentUnit, unitNames.get(index)));
+            long currentUnit = Double.valueOf((date - remainder) / currentSecond).longValue();
+            // 获取当前单位
+            resList.add(String.format("%s%s", currentUnit, unitNames.get(index + 1)));
+            // 匹配到存在该单位 下一步
+            date = date - currentUnit * currentSecond;
+        } else {
+            resList.add(String.format("%s%s", 0, unitNames.get(index + 1)));
         }
         if (index == 0) {
-            return 0d;
+            // 最后一个单位直接赋值
+            if (date > 0) {
+                resList.add(String.format("%s%s", date, unitNames.get(0)));
+            }
+            return resList;
         }
-        date = date / currentConvert + date % currentConvert;
-        return unitHour(date, index - 1, resList);
+        return unitDate(date, index - 1, resList, unitNames, unitConvert);
     }
 
-    private static void unitDate(Long date, int index, List<String> resList) {
-        List<String> unitNames = Arrays.asList("秒", "分钟", "小时", "天", "周");
-        List<Long> unitConvert = Arrays.asList(60L, 60L, 24L, 7L);
-        // 当前单位多少秒
-        Long currentSecond = NumberUtil.recursionList(unitConvert, index);
-        // 当前单位进制位
-        Long currentConvert = unitConvert.get(index);
-        if (date % currentSecond != date) {
-            resList.add(String.format("%s%s", date / currentConvert, unitNames.get(index + 1)));
-            return;
-        }
-        date = date / currentConvert + date % currentConvert;
-        unitDate(date, index - 1, resList);
+    public static boolean isRun(Long year) {
+        return year % 4 == 0 || year % 400 == 0;
     }
 }

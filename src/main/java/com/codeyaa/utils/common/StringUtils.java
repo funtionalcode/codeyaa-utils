@@ -93,7 +93,7 @@ public class StringUtils {
         return chineseNumberToInt(deque, new ArrayDeque<>(), 0L);
     }
 
-    public static Long chineseNumberToInt(Deque<Character> chineseNumbers, Deque<Integer> numberQueue, Long number) {
+    private static Long chineseNumberToInt(Deque<Character> chineseNumbers, Deque<Integer> numberQueue, Long number) {
         String val = "零一二三四五六七八九";
         String valChineseUnit = "十百千万亿";
         int[] valNumberUnit = {10, 100, 1000, 10000, 100000000};
