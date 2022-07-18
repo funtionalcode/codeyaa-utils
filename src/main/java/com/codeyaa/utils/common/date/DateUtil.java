@@ -14,6 +14,7 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 /**
  * @author Funtionalcode
@@ -274,13 +275,19 @@ public class DateUtil {
     }
 
     public static String unitDate(Long date) {
+        return unitDate(date, true);
+    }
+
+    public static String unitDate(Long date, boolean enableYear) {
         ArrayList<String> resList = new ArrayList<>();
 
         List<Long> resConvert = new ArrayList<>(unitConvert.subList(unitConvert.size() - 2, unitConvert.size()));
         resConvert.add(1L);
 
         List<String> unitDates = unitDate(date, resList, unitNames, unitConvert, true);
-
+        if (!enableYear) {
+            return String.join("", unitDates);
+        }
         boolean year = false;
         Long currentDateNum = 0L;
         for (String unitDate : unitDates) {
@@ -299,7 +306,7 @@ public class DateUtil {
             // 闰年则需要加 6 - (31 - 29) = 4 天
             long addDay = run ? currentDateNum * 4 : currentDateNum * 3;
 
-//            addYearDay(addDay, resList, resConvert);
+            addYearDay(addDay, resList, resConvert);
         } else {
             resList.clear();
             unitDates = unitDate(date, resList, unitNames, unitConvert, false);
@@ -395,13 +402,7 @@ public class DateUtil {
                 .map(row -> row == -1 ? 1 : NumberUtil.recursionList(unitConvert, row))
                 .collect(Collectors.toList());
 
-        long res = 0L;
-        for (int i = 0; i < nums.size(); i++) {
-            res += nums.get(i) * unitNums.get(i);
-        }
-
-        return res;
-
+        return IntStream.range(0, nums.size()).mapToLong(i -> nums.get(i) * unitNums.get(i)).reduce(0, Long::sum);
     }
 
     public static boolean isRun(Long year) {

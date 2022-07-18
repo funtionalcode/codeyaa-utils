@@ -42,7 +42,7 @@ public class NumberUtil {
      * @param y
      * @return
      */
-    public static double log(double x, double y) {
+    public static Double log(double x, double y) {
         return Math.log(y) / Math.log(x);
     }
 
